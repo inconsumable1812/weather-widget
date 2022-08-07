@@ -1,11 +1,16 @@
 <template>
   <div v-if="error">{{ error.message }}</div>
-  <pre v-else>{{ JSON.stringify(data, null, 2) }}</pre>
+  <WeatherComponent
+    v-else-if="data !== undefined"
+    :city-name="data.name"
+  ></WeatherComponent>
+  <p>Что-то пошло не так</p>
 </template>
 
 <script lang="ts">
 import { fetchFromCityName } from '@/api/fromCityName';
 import { defineComponent, ref } from 'vue';
+import WeatherComponent from './WeatherComponent.vue';
 
 export default defineComponent({
   async setup() {
@@ -18,6 +23,9 @@ export default defineComponent({
     }
 
     return { data, error };
+  },
+  components: {
+    WeatherComponent
   }
 });
 </script>

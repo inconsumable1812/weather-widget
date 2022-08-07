@@ -15,6 +15,13 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     semi: ['off', { omitLastInOneLineBlock: 'never' }],
-    camelcase: ['off', { properties: 'never' }]
+    camelcase: ['off', { properties: 'never' }],
+    'space-before-function-paren': 'off',
+    'vue/multi-word-component-names': [
+      'error',
+      {
+        ignores: ['Main']
+      }
+    ]
   }
 };

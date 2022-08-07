@@ -4,6 +4,6 @@ type QueryParameters = {
   cityName: string;
 };
 
-type Response = Partial<WeatherCity>;
+type Response = WeatherCity;
 
 export type { QueryParameters, Response };

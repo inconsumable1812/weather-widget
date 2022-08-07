@@ -1,6 +1,6 @@
 <template>
   <Suspense>
-    <Main />
+    <WeatherList />
 
     <template #fallback>Загрузка</template>
   </Suspense>
@@ -8,23 +8,26 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Main from './components/Main.vue';
+import WeatherList from './components/WeatherList.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
-    Main
+    WeatherList
   }
 });
 </script>
 
 <style lang="scss">
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 10px;
 }
 </style>

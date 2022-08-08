@@ -7,7 +7,7 @@
           :locationOptions="locationOptions"
           v-model="query"
           fromBound="city"
-          toBound="settlement"
+          toBound="city"
           :token="token"
           v-model:suggestion="suggestion"
         ></vue-dadata>

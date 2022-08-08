@@ -5,6 +5,7 @@ declare module '@vue/runtime-core' {
     cityName: string;
     id: number;
     order: number;
+    country_code: string;
   };
 
   type WeatherItems = {

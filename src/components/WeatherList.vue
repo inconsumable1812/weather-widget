@@ -1,6 +1,13 @@
 <template>
   <Suspense>
-    <WeatherComponent :city-name="'irkutsk'" />
+    <div class="list">
+      <WeatherComponent
+        :id="item.id"
+        v-for="item in items"
+        :key="item.id"
+        :city-name="item.cityName"
+      />
+    </div>
 
     <template #fallback>
       <div class="container">
@@ -11,12 +18,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { key } from '@/store';
+import { defineComponent, Item } from 'vue';
+import { useStore } from 'vuex';
 import WeatherComponent from './WeatherComponent.vue';
 
 export default defineComponent({
   setup() {
-    return {};
+    const store = useStore(key);
+    const items = store.getters.getItems as Item[];
+
+    return { items };
   },
   components: {
     WeatherComponent
@@ -35,5 +47,12 @@ export default defineComponent({
   align-items: center;
   display: flex;
   min-height: 293px;
+}
+
+.list {
+  display: grid;
+  column-gap: 10px;
+  row-gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
 }
 </style>

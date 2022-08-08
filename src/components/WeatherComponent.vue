@@ -60,8 +60,8 @@ export default defineComponent({
     const weatherURL = findWeatherIconURL(data.weather[0].icon);
     const temperature = kelvinToCelsius(data.main.temp);
     const feelsTemperature = kelvinToCelsius(data.main.feels_like);
-    const sunrise = computedSunTime(data.sys.sunrise);
-    const sunset = computedSunTime(data.sys.sunset);
+    const sunrise = computedSunTime(data.sys.sunrise, data.timezone);
+    const sunset = computedSunTime(data.sys.sunset, data.timezone);
 
     return {
       data,

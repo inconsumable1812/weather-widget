@@ -1,12 +1,13 @@
 <template>
-  <div class="list">
+  <div class="container">
     <SettingsItem
+      class="item"
       :id="item.id"
       :name="item.cityName"
+      :country="item.country_code"
       v-for="item in items"
       :key="item.id"
     >
-      {{ item }}
     </SettingsItem>
   </div>
   <FormCityName />
@@ -33,4 +34,8 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.item {
+  margin: 0 auto;
+}
+</style>

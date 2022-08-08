@@ -26,10 +26,14 @@ import { Suggestion, VueDadata } from 'vue-dadata';
 import { isCityExist } from '@/utils';
 import 'vue-dadata/dist/style.css';
 
+type RightSuggestion = Suggestion & {
+  data: { country_iso_code: string };
+};
+
 export default defineComponent({
   setup() {
     const query = ref('');
-    const suggestion = ref<Suggestion | undefined>(undefined);
+    const suggestion = ref<RightSuggestion | undefined>(undefined);
     const store = useStore(key);
 
     const handleSubmit = (e: Event) => {
@@ -44,7 +48,10 @@ export default defineComponent({
           return;
         }
 
-        store.commit('addItem', newCity);
+        store.commit('addItem', {
+          newName: newCity,
+          country_code: suggestion.value.data.country_iso_code
+        });
         query.value = '';
         suggestion.value = undefined;
 
@@ -57,7 +64,10 @@ export default defineComponent({
           return;
         }
 
-        store.commit('addItem', newSettlement);
+        store.commit('addItem', {
+          newName: newSettlement,
+          country_code: suggestion.value.data.country_iso_code
+        });
         query.value = '';
         suggestion.value = undefined;
       }
@@ -65,6 +75,7 @@ export default defineComponent({
 
     return {
       handleSubmit,
+
       suggestion,
       token: process.env.VUE_APP_API_KEY_DADATA,
       query,

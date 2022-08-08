@@ -2,7 +2,7 @@
   <div class="item">
     <div class="title">
       <div draggable="true" class="burger icon"><BurgerIcon /></div>
-      <p class="name">{{ name }}</p>
+      <p class="name">{{ name }}, {{ country }}</p>
     </div>
     <div :onclick="removeItem" class="trash icon"><TrashIcon /></div>
   </div>
@@ -30,6 +30,7 @@ export default defineComponent({
   },
   props: {
     name: { type: String, required: true },
+    country: { type: String, required: true },
     id: { type: Number, required: true }
   }
 });

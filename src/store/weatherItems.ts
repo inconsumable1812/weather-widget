@@ -15,11 +15,15 @@ const weatherItems: Module<State, WeatherItems> = {
     }
   },
   mutations: {
-    addItem(state, newName: string) {
+    addItem(
+      state,
+      { newName, country_code }: { newName: string; country_code: string }
+    ) {
       const newItem: Item = {
         cityName: newName,
         id: new Date().getTime(),
-        order: state.items.length + 1
+        order: state.items.length + 1,
+        country_code
       };
 
       state.items.push(newItem);

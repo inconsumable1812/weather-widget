@@ -1,11 +1,20 @@
 <template>
-  <SettingsItem />
+  <div class="list">
+    <SettingsItem
+      :id="item.id"
+      :name="item.cityName"
+      v-for="item in items"
+      :key="item.id"
+    >
+      {{ item }}
+    </SettingsItem>
+  </div>
   <FormCityName />
 </template>
 
 <script lang="ts">
 import { key } from '@/store';
-import { defineComponent } from 'vue';
+import { defineComponent, Item } from 'vue';
 import { useStore } from 'vuex';
 import FormCityName from './FormCityName.vue';
 import SettingsItem from './SettingsItem.vue';
@@ -13,7 +22,7 @@ import SettingsItem from './SettingsItem.vue';
 export default defineComponent({
   setup() {
     const store = useStore(key);
-    const items = store.getters.getItems;
+    const items = store.getters.getItems as Item[];
 
     return { items };
   },

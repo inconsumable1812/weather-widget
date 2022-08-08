@@ -1,9 +1,18 @@
 <template>
   <form :onsubmit="handleSubmit" class="form">
-    <label class="label"
-      ><h3 class="title">Add Location:</h3>
-      <input class="input" v-model="newCityName" type="text"
-    /></label>
+    <label class="label">
+      <h3 class="title">Add Location:</h3>
+      <div class="input">
+        <vue-dadata
+          :locationOptions="locationOptions"
+          v-model="query"
+          fromBound="city"
+          toBound="settlement"
+          :token="token"
+          v-model:suggestion="suggestion"
+        ></vue-dadata>
+      </div>
+    </label>
     <button class="icon"><EnterIcon /></button>
   </form>
 </template>
@@ -13,38 +22,72 @@ import { key } from '@/store';
 import { defineComponent, ref } from 'vue';
 import { useStore } from 'vuex';
 import EnterIcon from './Icon/EnterIcon.vue';
+import { Suggestion, VueDadata } from 'vue-dadata';
+import { isCityExist } from '@/utils';
+import 'vue-dadata/dist/style.css';
 
 export default defineComponent({
   setup() {
+    const query = ref('');
+    const suggestion = ref<Suggestion | undefined>(undefined);
     const store = useStore(key);
-    const newCityName = ref('');
+
     const handleSubmit = (e: Event) => {
       e.preventDefault();
-      store.commit('addName', newCityName.value.trim());
-      newCityName.value = '';
+      if (suggestion.value === undefined) {
+        return;
+      }
+
+      const newCity = suggestion.value.data.city;
+      if (newCity !== null) {
+        if (isCityExist(store.getters.getItems, newCity)) {
+          return;
+        }
+
+        store.commit('addItem', newCity);
+        query.value = '';
+        suggestion.value = undefined;
+
+        return;
+      }
+
+      const newSettlement = suggestion.value.data.settlement;
+      if (newSettlement !== null) {
+        if (isCityExist(store.getters.getItems, newSettlement)) {
+          return;
+        }
+
+        store.commit('addItem', newSettlement);
+        query.value = '';
+        suggestion.value = undefined;
+      }
     };
 
-    return { newCityName, handleSubmit };
+    return {
+      handleSubmit,
+      suggestion,
+      token: process.env.VUE_APP_API_KEY_DADATA,
+      query,
+      locationOptions: {
+        language: 'en',
+        locations: [{ country: '*', bounds: 'city' }]
+      }
+    };
   },
   components: {
-    EnterIcon
+    EnterIcon,
+    VueDadata
   }
 });
 </script>
 
 <style lang="scss" scoped>
-.input {
-  margin-top: 5px;
-  padding: 5px;
-
-  &:focus {
-    outline-color: rgb(74, 74, 249);
-  }
-}
+$rows: 25px 1fr;
 
 .form {
   display: grid;
-  grid-template-columns: max-content;
+  grid-template-columns: 1fr 40px;
+  grid-template-rows: $rows;
   gap: 5px;
   grid-template-areas:
     'label mock'
@@ -53,11 +96,24 @@ export default defineComponent({
 
 .label {
   grid-area: label;
+  display: grid;
+  grid-template-rows: $rows;
+  grid-template-areas:
+    'title'
+    'input';
+}
+
+.title {
+  grid-area: title;
+}
+
+.input {
+  grid-area: input;
 }
 
 .icon {
-  max-width: 35px;
-  max-height: 35px;
+  max-width: 30px;
+  max-height: 30px;
   grid-area: icon;
   cursor: pointer;
   background: none;

@@ -15,7 +15,7 @@ const weatherItems: Module<State, WeatherItems> = {
     }
   },
   mutations: {
-    addName(state, newName: string) {
+    addItem(state, newName: string) {
       const newItem: Item = {
         cityName: newName,
         id: new Date().getTime(),
@@ -24,8 +24,9 @@ const weatherItems: Module<State, WeatherItems> = {
 
       state.items.push(newItem);
     },
-    deleteName(state, id: number) {
-      state.items.filter((currentItem) => currentItem.id !== id);
+    deleteItem(state, id: number) {
+      const index = state.items.findIndex((item) => item.id === id);
+      state.items.splice(index, 1);
     },
     changeCurrentCard(state, value: Item | null) {
       state.currentCard = value;

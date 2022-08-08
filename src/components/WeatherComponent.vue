@@ -6,28 +6,33 @@
       <div class="weather-icon">
         <img :src="weatherURL" :alt="data.weather[0].description" />
       </div>
-      <div class="temperature">{{ temperature }}&deg;C</div>
+      <p class="temperature">{{ temperature }}&deg;C</p>
     </div>
-    <div class="description">
+    <p class="description">
       feels like {{ feelsTemperature }}&deg;C.
       {{ data.weather[0].description }}
-    </div>
+    </p>
     <div class="flex-gap">
-      <div class="wind">
-        <div class="wind-direction">
+      <div class="icon">
+        <div class="icon__item">
           <WindIcon :style="`transform: rotate(${data.wind.deg}deg)`" />
         </div>
-        <div class="wind-speed">{{ data.wind.speed }}m/s</div>
+        <p class="icon__value">{{ data.wind.speed }}m/s</p>
       </div>
-      <div class="pressure">{{ data.main.pressure }}hPa</div>
+      <div class="icon">
+        <div class="icon__item">
+          <PressureIcon />
+        </div>
+        <p class="icon__value">{{ data.main.pressure }}hPa</p>
+      </div>
     </div>
     <div class="flex-gap">
-      <div class="humidity">humidity: {{ data.main.humidity }}%</div>
-      <div class="visibility">visibility: {{ data.visibility }}m</div>
+      <p class="humidity">humidity: {{ data.main.humidity }}%</p>
+      <p class="visibility">visibility: {{ data.visibility }}m</p>
     </div>
     <div class="flex-gap">
-      <div class="sunrise">sunrise: {{ sunrise }}</div>
-      <div class="sunset">sunset: {{ sunset }}</div>
+      <p class="sunrise">sunrise: {{ sunrise }}</p>
+      <p class="sunset">sunset: {{ sunset }}</p>
     </div>
   </div>
 </template>
@@ -36,6 +41,7 @@
 import { fetchFromCityName } from '@/api/fromCityName';
 import { defineComponent, ref } from 'vue';
 import WindIcon from './WindIcon.vue';
+import PressureIcon from './PressureIcon.vue';
 import { findWeatherIconURL, kelvinToCelsius, computedSunTime } from '@/utils';
 
 export default defineComponent({
@@ -68,12 +74,13 @@ export default defineComponent({
     };
   },
   components: {
-    WindIcon
+    WindIcon,
+    PressureIcon
   }
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .content {
   margin: 0 auto;
   max-width: 370px;
@@ -96,17 +103,23 @@ export default defineComponent({
 
 .flex-gap {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: center;
   column-gap: 10px;
   margin: 10px 0;
 }
 
-.wind {
+.icon {
   display: flex;
   align-items: center;
-}
-.wind-direction {
-  min-width: 35px;
+
+  &__item {
+    max-width: 35px;
+    max-height: 35px;
+  }
+
+  &__value {
+    padding: 5px 0 0;
+  }
 }
 </style>

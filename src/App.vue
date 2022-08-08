@@ -1,19 +1,15 @@
 <template>
-  <Suspense>
-    <WeatherList />
-
-    <template #fallback>Загрузка</template>
-  </Suspense>
+  <WeatherFeature />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import WeatherList from './components/WeatherList.vue';
+import WeatherFeature from './components/WeatherFeature.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
-    WeatherList
+    WeatherFeature
   }
 });
 </script>

@@ -1,14 +1,9 @@
-import { createStore } from 'vuex'
+import { InjectionKey, State } from 'vue';
+import { createStore, Store } from 'vuex';
+import weatherItems from './weatherItems';
+
+export const key: InjectionKey<Store<State>> = Symbol('Store');
 
 export default createStore({
-  state: {
-  },
-  getters: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
-  modules: {
-  }
-})
+  modules: { weatherItems }
+});

@@ -7,8 +7,8 @@ const weatherItems: Module<State, WeatherItems> = {
     currentCard: null
   },
   getters: {
-    getCityNames(state) {
-      return state.items.map((name) => name.cityName);
+    getItems(state) {
+      return state.items;
     },
     getCurrentCard(state) {
       return state.currentCard;

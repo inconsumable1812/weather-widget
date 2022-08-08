@@ -19,8 +19,8 @@
 import { defineComponent, ref } from 'vue';
 import WeatherList from './WeatherList.vue';
 import SettingsView from './SettingsView.vue';
-import GearIcon from './GearIcon.vue';
-import CancelIcon from './CancelIcon.vue';
+import GearIcon from './Icon/GearIcon.vue';
+import CancelIcon from './Icon/CancelIcon.vue';
 
 export default defineComponent({
   components: {

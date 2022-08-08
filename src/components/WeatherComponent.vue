@@ -40,8 +40,8 @@
 <script lang="ts">
 import { fetchFromCityName } from '@/api/fromCityName';
 import { defineComponent, ref } from 'vue';
-import WindIcon from './WindIcon.vue';
-import PressureIcon from './PressureIcon.vue';
+import WindIcon from './Icon/WindIcon.vue';
+import PressureIcon from './Icon/PressureIcon.vue';
 import { findWeatherIconURL, kelvinToCelsius, computedSunTime } from '@/utils';
 
 export default defineComponent({

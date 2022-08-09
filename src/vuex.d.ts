@@ -8,12 +8,18 @@ declare module '@vue/runtime-core' {
     country_code: string;
   };
 
-  type WeatherItems = {
+  type WeatherItemsState = {
     items: Item[];
     currentItem: null | Item;
   };
 
-  type State = WeatherItems;
+  type Language = 'en' | 'ru';
+
+  type LanguageState = {
+    language: Language;
+  };
+
+  type State = WeatherItemsState & LanguageState;
 
   interface ComponentCustomProperties {
     $store: Store<State>;

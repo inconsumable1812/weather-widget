@@ -1,8 +1,8 @@
-import { WeatherItems, State, Item } from 'vue';
+import { WeatherItemsState, Item, State } from 'vue';
 import { Module } from 'vuex';
 import { sortOrder } from '@/utils';
 
-const weatherItems: Module<State, WeatherItems> = {
+const weatherItems: Module<WeatherItemsState, State> = {
   state: {
     items: [],
     currentItem: null

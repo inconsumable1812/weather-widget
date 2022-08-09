@@ -9,7 +9,8 @@
       <p class="temperature">{{ temperature }}&deg;C</p>
     </div>
     <p class="description">
-      feels like {{ feelsTemperature }}&deg;C.
+      {{ language === 'en' ? 'feels like' : 'по ощущениям' }}
+      {{ feelsTemperature }}&deg;C.
       {{ data.weather[0].description }}
     </p>
     <div class="flex-gap">
@@ -17,40 +18,62 @@
         <div class="icon__item">
           <WindIcon :style="`transform: rotate(${data.wind.deg}deg)`" />
         </div>
-        <p class="icon__value">{{ data.wind.speed }}m/s</p>
+        <p class="icon__value">
+          {{ data.wind.speed }}{{ language === 'en' ? 'm/s' : 'м/с' }}
+        </p>
       </div>
       <div class="icon">
         <div class="icon__item">
           <PressureIcon />
         </div>
-        <p class="icon__value">{{ data.main.pressure }}hPa</p>
+        <p class="icon__value">
+          {{ data.main.pressure }}{{ language === 'en' ? 'hPa' : 'гПа' }}
+        </p>
       </div>
     </div>
     <div class="flex-gap">
-      <p class="humidity">humidity: {{ data.main.humidity }}%</p>
-      <p class="visibility">visibility: {{ data.visibility }}m</p>
+      <p class="humidity">
+        {{ language === 'en' ? 'humidity' : 'влажность' }}:
+        {{ data.main.humidity }}%
+      </p>
+      <p class="visibility">
+        {{ language === 'en' ? 'visibility' : 'видимость' }}:
+        {{ data.visibility }}{{ language === 'en' ? 'm' : 'м' }}
+      </p>
     </div>
     <div class="flex-gap">
-      <p class="sunrise">sunrise: {{ sunrise }}</p>
-      <p class="sunset">sunset: {{ sunset }}</p>
+      <p class="sunrise">
+        {{ language === 'en' ? 'sunrise' : 'восход' }}: {{ sunrise }}
+      </p>
+      <p class="sunset">
+        {{ language === 'en' ? 'sunset' : 'закат' }}: {{ sunset }}
+      </p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { fetchFromCityName } from '@/api/fromCityName';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, Language, ref } from 'vue';
 import WindIcon from './Icon/WindIcon.vue';
 import PressureIcon from './Icon/PressureIcon.vue';
 import { findWeatherIconURL, kelvinToCelsius, computedSunTime } from '@/utils';
+import { key } from '@/store';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   props: {
     cityName: { type: String, required: true }
   },
   async setup(props) {
+    const store = useStore(key);
+    const language = store.getters.getLanguage as Language;
     const error = ref<null | Error>(null);
-    const data = await fetchFromCityName({ cityName: props.cityName });
+
+    const data = await fetchFromCityName({
+      cityName: props.cityName,
+      language
+    });
 
     if (data instanceof Error) {
       error.value = data;
@@ -70,7 +93,8 @@ export default defineComponent({
       temperature,
       feelsTemperature,
       sunrise,
-      sunset
+      sunset,
+      language
     };
   },
   components: {

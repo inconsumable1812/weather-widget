@@ -1,16 +1,20 @@
 <template>
-  <div class="icon">
+  <div class="settings">
+    <div class="settings__switcher">
+      <ToggleLanguage />
+    </div>
     <div
       :onclick="handleChangeView"
-      class="icon__item"
+      class="settings__icon"
       v-if="view === 'weather'"
     >
       <GearIcon />
     </div>
-    <div :onclick="handleChangeView" class="icon__item" v-else>
+    <div :onclick="handleChangeView" class="settings__icon" v-else>
       <CancelIcon />
     </div>
   </div>
+
   <p v-if="geolocationError" class="error">
     {{ geolocationError.message }}
   </p>
@@ -26,6 +30,7 @@ import WeatherList from './WeatherList.vue';
 import SettingsView from './SettingsView.vue';
 import GearIcon from './Icon/GearIcon.vue';
 import CancelIcon from './Icon/CancelIcon.vue';
+import ToggleLanguage from './ToggleLanguage.vue';
 import { key } from '@/store';
 import { useStore } from 'vuex';
 import { sortOrder } from '@/utils';
@@ -36,7 +41,8 @@ export default defineComponent({
     WeatherList,
     SettingsView,
     GearIcon,
-    CancelIcon
+    CancelIcon,
+    ToggleLanguage
   },
   setup() {
     const view = ref<'weather' | 'settings'>('weather');
@@ -109,12 +115,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.icon {
+.settings {
   display: flex;
   justify-content: flex-end;
   cursor: pointer;
+  gap: 10px;
 
-  &__item {
+  &__icon {
     max-width: 40px;
     max-height: 40px;
   }

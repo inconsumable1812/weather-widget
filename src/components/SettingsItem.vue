@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, Item } from 'vue';
 import TrashIcon from './Icon/TrashIcon.vue';
 import BurgerIcon from './Icon/BurgerIcon.vue';
 import { key } from '@/store';
@@ -18,8 +18,14 @@ import { useStore } from 'vuex';
 export default defineComponent({
   setup(props) {
     const store = useStore(key);
+    const items = store.getters.getItems as Item[];
+
     const removeItem = () => {
+      const currentItem = items.find((item) => item.id === props.id);
+      if (currentItem === undefined) return;
+
       store.commit('deleteItem', props.id);
+      localStorage.removeItem(currentItem.cityName);
     };
 
     return { removeItem };

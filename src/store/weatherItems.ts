@@ -28,6 +28,9 @@ const weatherItems: Module<State, WeatherItems> = {
 
       state.items.push(newItem);
     },
+    addItemFromStorage(state, item: Item) {
+      state.items.push(item);
+    },
     deleteItem(state, id: number) {
       const index = state.items.findIndex((item) => item.id === id);
       state.items.splice(index, 1);

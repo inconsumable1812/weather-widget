@@ -5,14 +5,14 @@ import { sortOrder } from '@/utils';
 const weatherItems: Module<State, WeatherItems> = {
   state: {
     items: [],
-    currentCard: null
+    currentItem: null
   },
   getters: {
     getItems(state) {
       return state.items;
     },
-    getCurrentCard(state) {
-      return state.currentCard;
+    getCurrentItem(state) {
+      return state.currentItem;
     }
   },
   mutations: {
@@ -41,24 +41,36 @@ const weatherItems: Module<State, WeatherItems> = {
       const index = state.items.findIndex((item) => item.id === id);
       state.items.splice(index, 1);
     },
-    changeCurrentCard(state, value: Item | null) {
-      state.currentCard = value;
+    changeCurrentItem(state, value: Item | null) {
+      state.currentItem = value;
     },
-    changeOrder(state, card: Item) {
-      state.items.map((c) => {
-        if (state.currentCard === null) {
-          return c;
-        }
+    changeOrder(state, dropItem: Item) {
+      const currentItem = state.currentItem;
+      if (currentItem === null) {
+        return;
+      }
 
-        if (c.id === card.id) {
-          return { ...c, order: state.currentCard.order };
-        }
+      const dropStartItem = state.items.find(
+        (item) => item.id === currentItem.id
+      );
+      if (dropStartItem === undefined) return;
 
-        if (c.id === state.currentCard.id) {
-          return { ...c, order: card.order };
-        }
-        return c;
-      });
+      const dropEndItem = state.items.find((item) => item.id === dropItem.id);
+      if (dropEndItem === undefined) return;
+
+      const startOrderNumber = dropStartItem.order;
+      const endOrderNumber = dropEndItem.order;
+      dropStartItem.order = endOrderNumber;
+      dropEndItem.order = startOrderNumber;
+
+      localStorage.removeItem(dropStartItem.cityName);
+      localStorage.setItem(
+        dropStartItem.cityName,
+        JSON.stringify(dropStartItem)
+      );
+
+      localStorage.removeItem(dropEndItem.cityName);
+      localStorage.setItem(dropEndItem.cityName, JSON.stringify(dropEndItem));
     },
     sortItems(state) {
       state.items.sort(sortOrder);

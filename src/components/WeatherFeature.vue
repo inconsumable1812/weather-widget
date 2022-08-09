@@ -79,7 +79,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .icon {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   cursor: pointer;
 
   &__item {

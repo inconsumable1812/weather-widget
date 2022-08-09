@@ -10,7 +10,7 @@ declare module '@vue/runtime-core' {
 
   type WeatherItems = {
     items: Item[];
-    currentCard: null | Item;
+    currentItem: null | Item;
   };
 
   type State = WeatherItems;

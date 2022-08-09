@@ -33,13 +33,19 @@ const weatherItems: Module<State, WeatherItems> = {
       };
 
       state.items.push(newItem);
+      localStorage.setItem(newName, JSON.stringify(newItem));
     },
     addItemFromStorage(state, item: Item) {
       state.items.push(item);
     },
     deleteItem(state, id: number) {
       const index = state.items.findIndex((item) => item.id === id);
+      const item = state.items.find((item) => item.id === id);
+
+      if (item === undefined) return;
+
       state.items.splice(index, 1);
+      localStorage.removeItem(item.cityName);
     },
     changeCurrentItem(state, value: Item | null) {
       state.currentItem = value;

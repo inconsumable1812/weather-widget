@@ -19,11 +19,11 @@
 
 <script lang="ts">
 import { key } from '@/store';
-import { defineComponent, Item, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useStore } from 'vuex';
 import EnterIcon from './Icon/EnterIcon.vue';
 import { Suggestion, VueDadata } from 'vue-dadata';
-import { isCityExist, setLocalStorage } from '@/utils';
+import { isCityExist } from '@/utils';
 import 'vue-dadata/dist/style.css';
 
 type RightSuggestion = Suggestion & {
@@ -54,8 +54,6 @@ export default defineComponent({
         });
         query.value = '';
         suggestion.value = undefined;
-
-        setLocalStorage(newCity, store.getters.getItems as Item[]);
       }
     };
 

@@ -36,7 +36,6 @@ export default defineComponent({
       if (currentItem === undefined) return;
 
       store.commit('deleteItem', props.id);
-      localStorage.removeItem(currentItem.cityName);
     };
 
     const handlerDragStart = () => {

@@ -11,8 +11,13 @@
       <CancelIcon />
     </div>
   </div>
-  <WeatherList v-if="view === 'weather'" />
-  <SettingsView v-else-if="view === 'settings'" />
+  <p v-if="geolocationError" class="error">
+    {{ geolocationError.message }}
+  </p>
+  <div v-else>
+    <WeatherList v-if="view === 'weather'" />
+    <SettingsView v-else-if="view === 'settings'" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -24,6 +29,7 @@ import CancelIcon from './Icon/CancelIcon.vue';
 import { key } from '@/store';
 import { useStore } from 'vuex';
 import { sortOrder } from '@/utils';
+import { fetchFromCoord } from '@/api/fromCoord';
 
 export default defineComponent({
   components: {
@@ -34,6 +40,7 @@ export default defineComponent({
   },
   setup() {
     const view = ref<'weather' | 'settings'>('weather');
+    const geolocationError = ref<null | Error | GeolocationPositionError>(null);
     const store = useStore(key);
     const storeItems = store.getters.getItems as Item[];
 
@@ -47,7 +54,6 @@ export default defineComponent({
 
     const localKeys = Object.keys(localStorage);
     const items: Item[] = [];
-
     for (const localKey of localKeys) {
       const itemJSON = localStorage.getItem(localKey);
       if (itemJSON !== null) {
@@ -68,9 +74,35 @@ export default defineComponent({
       store.commit('addItemFromStorage', item);
     });
 
+    async function success(pos: GeolocationPosition) {
+      const { latitude, longitude } = pos.coords;
+      const data = await fetchFromCoord({ latitude, longitude });
+
+      if (data instanceof Error) {
+        geolocationError.value = data;
+        return;
+      }
+
+      store.commit('addItem', {
+        newName: data.name,
+        country_code: data.sys.country
+      });
+    }
+
+    function error(error: GeolocationPositionError) {
+      geolocationError.value = error;
+    }
+
+    if (storeItems.length === 0) {
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true
+      });
+    }
+
     return {
       view,
-      handleChangeView
+      handleChangeView,
+      geolocationError
     };
   }
 });
@@ -86,5 +118,11 @@ export default defineComponent({
     max-width: 40px;
     max-height: 40px;
   }
+}
+
+.error {
+  color: red;
+  font-size: 1.5rem;
+  text-align: center;
 }
 </style>

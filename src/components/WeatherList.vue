@@ -53,6 +53,6 @@ export default defineComponent({
   display: grid;
   column-gap: 10px;
   row-gap: 20px;
-  grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 </style>

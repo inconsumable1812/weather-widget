@@ -1,5 +1,5 @@
 <template>
-  <div v-if="error" class="error"></div>
+  <p v-if="error" class="error">{{ error.message }}</p>
   <div v-else-if="data !== undefined" class="content">
     <h2 class="name">{{ data.name }}, {{ data.sys.country }}</h2>
     <div class="flex-icon">
@@ -83,7 +83,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .content {
   margin: 0 auto;
-  max-width: 370px;
+  max-width: 300px;
   border: 2px solid rgb(132, 132, 132);
   padding: 10px;
   border-radius: 10px;
@@ -121,5 +121,11 @@ export default defineComponent({
   &__value {
     padding: 5px 0 0;
   }
+}
+
+.error {
+  color: red;
+  font-size: 1.5rem;
+  text-align: center;
 }
 </style>

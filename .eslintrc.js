@@ -18,6 +18,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     semi: ['off', { omitLastInOneLineBlock: 'never' }],
     camelcase: ['off', { properties: 'never' }],
-    'space-before-function-paren': 'off'
+    'space-before-function-paren': 'off',
+    'no-undef': 'off'
   }
 };

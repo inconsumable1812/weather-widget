@@ -23,6 +23,7 @@ import GearIcon from './Icon/GearIcon.vue';
 import CancelIcon from './Icon/CancelIcon.vue';
 import { key } from '@/store';
 import { useStore } from 'vuex';
+import { sortOrder } from '@/utils';
 
 export default defineComponent({
   components: {
@@ -57,7 +58,7 @@ export default defineComponent({
       }
     }
 
-    items.forEach((item) => {
+    items.sort(sortOrder).forEach((item) => {
       const index = storeItems.findIndex(
         (storeItem) => storeItem.cityName === item.cityName
       );

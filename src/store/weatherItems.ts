@@ -1,5 +1,6 @@
 import { WeatherItems, State, Item } from 'vue';
 import { Module } from 'vuex';
+import { sortOrder } from '@/utils';
 
 const weatherItems: Module<State, WeatherItems> = {
   state: {
@@ -19,10 +20,15 @@ const weatherItems: Module<State, WeatherItems> = {
       state,
       { newName, country_code }: { newName: string; country_code: string }
     ) {
+      const order =
+        state.items.length === 0
+          ? 1
+          : state.items[state.items.length - 1].order + 1;
+
       const newItem: Item = {
         cityName: newName,
         id: new Date().getTime(),
-        order: state.items.length + 1,
+        order,
         country_code
       };
 
@@ -55,15 +61,7 @@ const weatherItems: Module<State, WeatherItems> = {
       });
     },
     sortItems(state) {
-      const handlerSort = (a: Item, b: Item) => {
-        if (a.order > b.order) {
-          return 1;
-        } else {
-          return -1;
-        }
-      };
-
-      state.items.sort(handlerSort);
+      state.items.sort(sortOrder);
     }
   },
   actions: {}

@@ -6,6 +6,5 @@ module.exports = defineConfig({
     optimization: {
       splitChunks: false
     }
-  },
-  publicPath: process.env.NODE_ENV === 'production' ? '/weather-widget/' : '/'
+  }
 });

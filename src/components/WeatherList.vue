@@ -30,8 +30,9 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .list {
+  margin: 15px 0;
   display: grid;
-  column-gap: 10px;
+  column-gap: 12px;
   row-gap: 20px;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }

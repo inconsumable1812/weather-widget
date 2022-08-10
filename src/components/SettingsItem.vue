@@ -113,6 +113,12 @@ export default defineComponent({
     max-height: 30px;
     cursor: pointer;
   }
+
+  &__name {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 }
 
 .burger {

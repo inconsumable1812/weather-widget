@@ -38,4 +38,8 @@ export default defineComponent({
 .item {
   margin: 0 auto;
 }
+
+.container {
+  margin: 5px 0 12px;
+}
 </style>

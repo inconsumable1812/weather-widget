@@ -105,6 +105,13 @@ export default defineComponent({
   box-shadow: 0px 0px 8px 2px rgb(165, 187, 255);
 }
 
+.name {
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .flex-icon {
   display: flex;
   justify-content: center;

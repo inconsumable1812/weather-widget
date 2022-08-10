@@ -19,7 +19,7 @@ And add this files to your HTML
 
 #### second option
 
-1. clone this repository
+- clone this repository
 
 ```
 git clone https://github.com/inconsumable1812/weather-widget.git
@@ -27,9 +27,9 @@ cd weather-widget
 npm i
 ```
 
-1. run `npm run build`.
-1. `dist` folder will contain `js` and `css` files.
-1. add this files to your HTML
+- run `npm run build`.
+- `dist` folder will contain `js` and `css` files.
+- add this files to your HTML
 
 ## Project setup
 

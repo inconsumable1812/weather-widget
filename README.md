@@ -12,8 +12,8 @@ You can add this widget to their websites as simple as inserting the snippet int
 
 #### first option
 
-- download `js` file from [url](https://github.com/inconsumable1812/weather-widget/blob/gh-pages/js/app.a5eef2df.js)
-- download `css` file from [url](https://github.com/inconsumable1812/weather-widget/blob/gh-pages/css/app.2c75db3c.css)
+- download `js` file from [url](https://github.com/inconsumable1812/weather-widget/tree/gh-pages/js)
+- download `css` file from [url](https://github.com/inconsumable1812/weather-widget/tree/gh-pages/css)
 
 And add this files to your HTML
 

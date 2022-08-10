@@ -3,8 +3,8 @@
     <SettingsItem
       class="item"
       :id="item.id"
-      :name="item.cityName"
-      :country="item.country_code"
+      :name="item.value.name"
+      :country="item.value.sys.country"
       v-for="item in items"
       :key="item.id"
     >

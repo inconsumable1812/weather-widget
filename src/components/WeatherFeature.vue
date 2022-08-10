@@ -18,6 +18,10 @@
   <p v-if="geolocationError" class="error">
     {{ geolocationError.message }}
   </p>
+  <p v-else-if="error !== null" class="error">
+    {{ error.message }}
+  </p>
+  <div v-else-if="loading" class="loader"><LoaderComponent /></div>
   <div v-else>
     <WeatherList v-if="view === 'weather'" />
     <SettingsView v-else-if="view === 'settings'" />
@@ -31,10 +35,11 @@ import SettingsView from './SettingsView.vue';
 import GearIcon from './Icon/GearIcon.vue';
 import CancelIcon from './Icon/CancelIcon.vue';
 import ToggleLanguage from './ToggleLanguage.vue';
+import LoaderComponent from './LoaderComponent.vue';
 import { key } from '@/store';
 import { useStore } from 'vuex';
 import { sortOrder } from '@/utils';
-import { fetchFromCoord } from '@/api/fromCoord';
+import { LocalStorageItem } from '@/types';
 
 export default defineComponent({
   components: {
@@ -42,13 +47,16 @@ export default defineComponent({
     SettingsView,
     GearIcon,
     CancelIcon,
-    ToggleLanguage
+    ToggleLanguage,
+    LoaderComponent
   },
   setup() {
     const view = ref<'weather' | 'settings'>('weather');
     const geolocationError = ref<null | Error | GeolocationPositionError>(null);
     const store = useStore(key);
     const storeItems = store.getters.getItems as Item[];
+    const loading = ref(false);
+    const error = store.getters.getError as Error | null;
 
     const handleChangeView = () => {
       if (view.value === 'weather') {
@@ -59,7 +67,7 @@ export default defineComponent({
     };
 
     const localKeys = Object.keys(localStorage);
-    const items: Item[] = [];
+    const items: LocalStorageItem[] = [];
     for (const localKey of localKeys) {
       const itemJSON = localStorage.getItem(localKey);
       if (itemJSON !== null) {
@@ -70,37 +78,36 @@ export default defineComponent({
       }
     }
 
-    items.sort(sortOrder).forEach((item) => {
+    items.sort(sortOrder).forEach(async (item) => {
       const index = storeItems.findIndex(
-        (storeItem) => storeItem.cityName === item.cityName
+        (storeItem) => storeItem.id === item.id
       );
       const isExist = index !== -1;
       if (isExist) return;
 
-      store.commit('addItemFromStorage', item);
+      store.commit('changeCurrentCityName', item.cityName);
+      loading.value = true;
+      await store.dispatch('getWeatherFromName');
+      loading.value = false;
+      store.commit('changeCurrentCityName', null);
     });
 
     async function success(pos: GeolocationPosition) {
       const { latitude, longitude } = pos.coords;
-      const data = await fetchFromCoord({ latitude, longitude });
 
-      if (data instanceof Error) {
-        geolocationError.value = data;
-        return;
-      }
-
-      store.commit('addItem', {
-        newName: data.name,
-        country_code: data.sys.country
-      });
+      store.commit('changeCoord', { latitude, longitude });
+      loading.value = true;
+      await store.dispatch('getWeatherFromCoord');
+      loading.value = false;
+      store.commit('changeCoord', { latitude: null, longitude: null });
     }
 
-    function error(error: GeolocationPositionError) {
+    function errorCallback(error: GeolocationPositionError) {
       geolocationError.value = error;
     }
 
-    if (storeItems.length === 0) {
-      navigator.geolocation.getCurrentPosition(success, error, {
+    if (items.length === 0) {
+      navigator.geolocation.getCurrentPosition(success, errorCallback, {
         enableHighAccuracy: true
       });
     }
@@ -108,7 +115,9 @@ export default defineComponent({
     return {
       view,
       handleChangeView,
-      geolocationError
+      geolocationError,
+      loading,
+      error
     };
   }
 });
@@ -130,6 +139,10 @@ export default defineComponent({
 .error {
   color: red;
   font-size: 1.5rem;
+  text-align: center;
+}
+
+.loader {
   text-align: center;
 }
 </style>

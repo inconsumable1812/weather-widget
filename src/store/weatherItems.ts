@@ -1,11 +1,19 @@
 import { WeatherItemsState, Item, State } from 'vue';
 import { Module } from 'vuex';
 import { sortOrder } from '@/utils';
+import { fetchFromCityName } from '@/api/fromCityName';
+import { WeatherCity } from '@/api/types';
+import { fetchFromCoord } from '@/api/fromCoord';
 
 const weatherItems: Module<WeatherItemsState, State> = {
   state: {
     items: [],
-    currentItem: null
+    currentItem: null,
+    currentCityName: null,
+    currentLatitude: null,
+    currentLongitude: null,
+    language: 'en',
+    error: null
   },
   getters: {
     getItems(state) {
@@ -13,30 +21,32 @@ const weatherItems: Module<WeatherItemsState, State> = {
     },
     getCurrentItem(state) {
       return state.currentItem;
+    },
+    getLanguage(state) {
+      return state.language;
+    },
+    getError(state) {
+      return state.error;
     }
   },
   mutations: {
-    addItem(
-      state,
-      { newName, country_code }: { newName: string; country_code: string }
-    ) {
+    addItem(state, value: WeatherCity) {
       const order =
         state.items.length === 0
           ? 1
           : state.items[state.items.length - 1].order + 1;
 
       const newItem: Item = {
-        cityName: newName,
-        id: new Date().getTime(),
-        order,
-        country_code
+        value,
+        id: value.id,
+        order
       };
 
       state.items.push(newItem);
-      localStorage.setItem(newName, JSON.stringify(newItem));
-    },
-    addItemFromStorage(state, item: Item) {
-      state.items.push(item);
+      localStorage.setItem(
+        value.name,
+        JSON.stringify({ order, cityName: value.name, id: value.id })
+      );
     },
     deleteItem(state, id: number) {
       const index = state.items.findIndex((item) => item.id === id);
@@ -45,10 +55,26 @@ const weatherItems: Module<WeatherItemsState, State> = {
       if (item === undefined) return;
 
       state.items.splice(index, 1);
-      localStorage.removeItem(item.cityName);
+      localStorage.removeItem(item.value.name);
     },
     changeCurrentItem(state, value: Item | null) {
       state.currentItem = value;
+    },
+    changeCurrentCityName(state, newCityName: string | null) {
+      state.currentCityName = newCityName;
+    },
+    changeCoord(
+      state,
+      {
+        latitude,
+        longitude
+      }: { latitude: number | null; longitude: number | null }
+    ) {
+      state.currentLatitude = latitude;
+      state.currentLongitude = longitude;
+    },
+    changeError(state, error: Error | null) {
+      state.error = error;
     },
     changeOrder(state, dropItem: Item) {
       const currentItem = state.currentItem;
@@ -69,20 +95,69 @@ const weatherItems: Module<WeatherItemsState, State> = {
       dropStartItem.order = endOrderNumber;
       dropEndItem.order = startOrderNumber;
 
-      localStorage.removeItem(dropStartItem.cityName);
+      localStorage.removeItem(dropStartItem.value.name);
       localStorage.setItem(
-        dropStartItem.cityName,
-        JSON.stringify(dropStartItem)
+        dropStartItem.value.name,
+        JSON.stringify({
+          order: dropStartItem.order,
+          cityName: dropStartItem.value.name,
+          id: dropStartItem.id
+        })
       );
 
-      localStorage.removeItem(dropEndItem.cityName);
-      localStorage.setItem(dropEndItem.cityName, JSON.stringify(dropEndItem));
+      localStorage.removeItem(dropEndItem.value.name);
+      localStorage.setItem(
+        dropEndItem.value.name,
+        JSON.stringify({
+          order: dropEndItem.order,
+          cityName: dropEndItem.value.name,
+          id: dropEndItem.id
+        })
+      );
     },
     sortItems(state) {
       state.items.sort(sortOrder);
+    },
+    changeLanguage(state) {
+      state.language = state.language === 'en' ? 'ru' : 'en';
     }
   },
-  actions: {}
+  actions: {
+    async getWeatherFromName({ commit, state }) {
+      if (state.currentCityName === null) return;
+
+      const data = await fetchFromCityName({
+        cityName: state.currentCityName,
+        language: state.language
+      });
+
+      if (data instanceof Error) {
+        commit('changeError', data);
+        return;
+      }
+
+      commit('addItem', data);
+    },
+    async getWeatherFromCoord({ commit, state }) {
+      const { currentLatitude, currentLongitude } = state;
+      if (currentLatitude === null || currentLongitude === null) {
+        return;
+      }
+
+      const data = await fetchFromCoord({
+        latitude: currentLatitude,
+        longitude: currentLongitude,
+        language: state.language
+      });
+
+      if (data instanceof Error) {
+        commit('changeError', data);
+        return;
+      }
+
+      commit('addItem', data);
+    }
+  }
 };
 
 export default weatherItems;

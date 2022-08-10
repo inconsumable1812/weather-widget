@@ -1,20 +1,12 @@
 <template>
-  <Suspense>
-    <div class="list">
-      <WeatherComponent
-        :id="item.id"
-        v-for="item in items"
-        :key="item.id"
-        :city-name="item.cityName"
-      />
-    </div>
-
-    <template #fallback>
-      <div class="container">
-        <p class="loading">Загрузка...</p>
-      </div>
-    </template>
-  </Suspense>
+  <div class="list">
+    <WeatherComponent
+      :id="item.id"
+      v-for="item in items"
+      :key="item.id"
+      :item="item"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -37,18 +29,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.loading {
-  text-align: center;
-  font-size: 1.5rem;
-}
-
-.container {
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  min-height: 293px;
-}
-
 .list {
   display: grid;
   column-gap: 10px;

@@ -1,25 +1,24 @@
 <template>
-  <p v-if="error" class="error">{{ error.message }}</p>
-  <div v-else-if="data !== undefined" class="content">
-    <h2 class="name">{{ data.name }}, {{ data.sys.country }}</h2>
+  <div class="content">
+    <h2 class="name">{{ item.value.name }}, {{ item.value.sys.country }}</h2>
     <div class="flex-icon">
       <div class="weather-icon">
-        <img :src="weatherURL" :alt="data.weather[0].description" />
+        <img :src="weatherURL" :alt="item.value.weather[0].description" />
       </div>
       <p class="temperature">{{ temperature }}&deg;C</p>
     </div>
     <p class="description">
       {{ language === 'en' ? 'feels like' : 'по ощущениям' }}
       {{ feelsTemperature }}&deg;C.
-      {{ data.weather[0].description }}
+      {{ item.value.weather[0].description }}
     </p>
     <div class="flex-gap">
       <div class="icon">
         <div class="icon__item">
-          <WindIcon :style="`transform: rotate(${data.wind.deg}deg)`" />
+          <WindIcon :style="`transform: rotate(${item.value.wind.deg}deg)`" />
         </div>
         <p class="icon__value">
-          {{ data.wind.speed }}{{ language === 'en' ? 'm/s' : 'м/с' }}
+          {{ item.value.wind.speed }}{{ language === 'en' ? 'm/s' : 'м/с' }}
         </p>
       </div>
       <div class="icon">
@@ -27,18 +26,18 @@
           <PressureIcon />
         </div>
         <p class="icon__value">
-          {{ data.main.pressure }}{{ language === 'en' ? 'hPa' : 'гПа' }}
+          {{ item.value.main.pressure }}{{ language === 'en' ? 'hPa' : 'гПа' }}
         </p>
       </div>
     </div>
     <div class="flex-gap">
       <p class="humidity">
         {{ language === 'en' ? 'humidity' : 'влажность' }}:
-        {{ data.main.humidity }}%
+        {{ item.value.main.humidity }}%
       </p>
       <p class="visibility">
         {{ language === 'en' ? 'visibility' : 'видимость' }}:
-        {{ data.visibility }}{{ language === 'en' ? 'm' : 'м' }}
+        {{ item.value.visibility }}{{ language === 'en' ? 'm' : 'м' }}
       </p>
     </div>
     <div class="flex-gap">
@@ -53,8 +52,7 @@
 </template>
 
 <script lang="ts">
-import { fetchFromCityName } from '@/api/fromCityName';
-import { defineComponent, Language, ref } from 'vue';
+import { defineComponent, Language, onMounted, Item, PropType } from 'vue';
 import WindIcon from './Icon/WindIcon.vue';
 import PressureIcon from './Icon/PressureIcon.vue';
 import { findWeatherIconURL, kelvinToCelsius, computedSunTime } from '@/utils';
@@ -63,32 +61,29 @@ import { useStore } from 'vuex';
 
 export default defineComponent({
   props: {
-    cityName: { type: String, required: true }
+    item: { type: Object as PropType<Item>, required: true }
   },
-  async setup(props) {
+  setup(props) {
     const store = useStore(key);
     const language = store.getters.getLanguage as Language;
-    const error = ref<null | Error>(null);
 
-    const data = await fetchFromCityName({
-      cityName: props.cityName,
-      language
+    onMounted(() => {
+      console.log('munted');
     });
 
-    if (data instanceof Error) {
-      error.value = data;
-      return { error };
-    }
-
-    const weatherURL = findWeatherIconURL(data.weather[0].icon);
-    const temperature = kelvinToCelsius(data.main.temp);
-    const feelsTemperature = kelvinToCelsius(data.main.feels_like);
-    const sunrise = computedSunTime(data.sys.sunrise, data.timezone);
-    const sunset = computedSunTime(data.sys.sunset, data.timezone);
+    const weatherURL = findWeatherIconURL(props.item.value.weather[0].icon);
+    const temperature = kelvinToCelsius(props.item.value.main.temp);
+    const feelsTemperature = kelvinToCelsius(props.item.value.main.feels_like);
+    const sunrise = computedSunTime(
+      props.item.value.sys.sunrise,
+      props.item.value.timezone
+    );
+    const sunset = computedSunTime(
+      props.item.value.sys.sunset,
+      props.item.value.timezone
+    );
 
     return {
-      data,
-      error,
       weatherURL,
       temperature,
       feelsTemperature,
@@ -145,11 +140,5 @@ export default defineComponent({
   &__value {
     padding: 5px 0 0;
   }
-}
-
-.error {
-  color: red;
-  font-size: 1.5rem;
-  text-align: center;
 }
 </style>

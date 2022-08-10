@@ -2,11 +2,14 @@ import type { QueryParameters, Response } from './types';
 
 const fetch = async ({
   latitude,
-  longitude
+  longitude,
+  language = 'en'
 }: QueryParameters): Promise<Response | globalThis.Error> => {
   try {
+    const languageRU = language === 'ru' ? '&lang=ru' : '';
+
     const response = await globalThis.fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${process.env.VUE_APP_API_KEY}`
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}${languageRU}&appid=${process.env.VUE_APP_API_KEY}`
     );
 
     const data = await response.json();

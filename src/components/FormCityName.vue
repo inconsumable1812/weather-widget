@@ -1,20 +1,23 @@
 <template>
-  <form :onsubmit="handleSubmit" class="form">
-    <label class="label">
-      <h3 class="title">Add Location:</h3>
-      <div class="input">
-        <vue-dadata
-          :locationOptions="locationOptions"
-          v-model="query"
-          fromBound="city"
-          toBound="city"
-          :token="token"
-          v-model:suggestion="suggestion"
-        ></vue-dadata>
-      </div>
-    </label>
-    <button class="icon"><EnterIcon /></button>
-  </form>
+  <div class="root">
+    <form :onsubmit="handleSubmit" class="form">
+      <label class="form__label">
+        <h3 class="form__title">Add Location:</h3>
+        <div class="form__input">
+          <vue-dadata
+            :locationOptions="locationOptions"
+            v-model="query"
+            fromBound="city"
+            toBound="city"
+            :token="token"
+            v-model:suggestion="suggestion"
+          ></vue-dadata>
+        </div>
+      </label>
+      <button class="form__icon"><EnterIcon /></button>
+    </form>
+    <div v-if="loading" class="loader"><LoaderComponent /></div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -22,6 +25,7 @@ import { key } from '@/store';
 import { defineComponent, ref } from 'vue';
 import { useStore } from 'vuex';
 import EnterIcon from './Icon/EnterIcon.vue';
+import LoaderComponent from './LoaderComponent.vue';
 import { Suggestion, VueDadata } from 'vue-dadata';
 import { isCityExist } from '@/utils';
 import 'vue-dadata/dist/style.css';
@@ -35,8 +39,9 @@ export default defineComponent({
     const query = ref('');
     const suggestion = ref<RightSuggestion | undefined>(undefined);
     const store = useStore(key);
+    const loading = ref(false);
 
-    const handleSubmit = (e: Event) => {
+    const handleSubmit = async (e: Event) => {
       e.preventDefault();
       if (suggestion.value === undefined) {
         return;
@@ -48,18 +53,19 @@ export default defineComponent({
           return;
         }
 
-        store.commit('addItem', {
-          newName: newCity,
-          country_code: suggestion.value.data.country_iso_code
-        });
+        store.commit('changeCurrentCityName', newCity);
+        loading.value = true;
+        await store.dispatch('getWeatherFromName');
         query.value = '';
         suggestion.value = undefined;
+        loading.value = false;
+        store.commit('changeCurrentCityName', null);
       }
     };
 
     return {
       handleSubmit,
-
+      loading,
       suggestion,
       token: process.env.VUE_APP_API_KEY_DADATA,
       query,
@@ -71,7 +77,8 @@ export default defineComponent({
   },
   components: {
     EnterIcon,
-    VueDadata
+    VueDadata,
+    LoaderComponent
   }
 });
 </script>
@@ -87,31 +94,40 @@ $rows: 25px 1fr;
   grid-template-areas:
     'label mock'
     'label icon';
+
+  &__label {
+    grid-area: label;
+    display: grid;
+    grid-template-rows: $rows;
+    grid-template-areas:
+      'title'
+      'input';
+  }
+  &__title {
+    grid-area: title;
+  }
+
+  &__input {
+    grid-area: input;
+  }
+
+  &__icon {
+    max-width: 30px;
+    max-height: 30px;
+    grid-area: icon;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
 }
 
-.label {
-  grid-area: label;
-  display: grid;
-  grid-template-rows: $rows;
-  grid-template-areas:
-    'title'
-    'input';
+.root {
+  position: relative;
 }
 
-.title {
-  grid-area: title;
-}
-
-.input {
-  grid-area: input;
-}
-
-.icon {
-  max-width: 30px;
-  max-height: 30px;
-  grid-area: icon;
-  cursor: pointer;
-  background: none;
-  border: none;
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
 </style>

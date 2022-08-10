@@ -1,25 +1,26 @@
 import { Store } from 'vuex';
+import { WeatherCity } from '@/api/types';
 
 declare module '@vue/runtime-core' {
+  type Language = 'en' | 'ru';
+
   type Item = {
-    cityName: string;
+    value: WeatherCity;
     id: number;
     order: number;
-    country_code: string;
   };
 
   type WeatherItemsState = {
     items: Item[];
     currentItem: null | Item;
-  };
-
-  type Language = 'en' | 'ru';
-
-  type LanguageState = {
+    currentCityName: null | string;
+    currentLatitude: number | null;
+    currentLongitude: number | null;
     language: Language;
+    error: Error | null;
   };
 
-  type State = WeatherItemsState & LanguageState;
+  type State = WeatherItemsState;
 
   interface ComponentCustomProperties {
     $store: Store<State>;

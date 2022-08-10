@@ -25,6 +25,7 @@ export default defineComponent({
 
     watch(isRussianLanguage, () => {
       store.commit('changeLanguage');
+      store.dispatch('changeLanguageActions');
     });
 
     return { isRussianLanguage };

@@ -57,6 +57,10 @@ const weatherItems: Module<WeatherItemsState, State> = {
       state.items.splice(index, 1);
       localStorage.removeItem(item.value.name);
     },
+    deleteItems(state) {
+      state.items.splice(0, state.items.length);
+      localStorage.clear();
+    },
     changeCurrentItem(state, value: Item | null) {
       state.currentItem = value;
     },
@@ -156,6 +160,22 @@ const weatherItems: Module<WeatherItemsState, State> = {
       }
 
       commit('addItem', data);
+    },
+    async changeLanguageActions({ commit, state, dispatch }) {
+      if (state.items.length === 0) {
+        return;
+      }
+
+      const allItems = [...state.items];
+      commit('deleteItems');
+
+      allItems.forEach(async (item) => {
+        commit('changeCurrentCityName', item.value.name);
+        await dispatch('getWeatherFromName');
+        commit('changeCurrentCityName', null);
+      });
+
+      localStorage.setItem('appLanguage', JSON.stringify(state.language));
     }
   }
 };

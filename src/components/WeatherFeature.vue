@@ -72,6 +72,7 @@ export default defineComponent({
       const itemJSON = localStorage.getItem(localKey);
       if (itemJSON !== null) {
         const itemObject = JSON.parse(itemJSON);
+
         if (itemObject.cityName !== undefined) {
           items.push(itemObject);
         }

@@ -2,7 +2,9 @@
   <div class="root">
     <form :onsubmit="handleSubmit" class="form">
       <label class="form__label">
-        <h3 class="form__title">Add Location:</h3>
+        <h3 class="form__title">
+          {{ language === 'en' ? 'Add Location:' : 'Добавить место:' }}
+        </h3>
         <div class="form__input">
           <vue-dadata
             :locationOptions="locationOptions"
@@ -22,7 +24,7 @@
 
 <script lang="ts">
 import { key } from '@/store';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, Language, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import EnterIcon from './Icon/EnterIcon.vue';
 import LoaderComponent from './LoaderComponent.vue';
@@ -30,15 +32,12 @@ import { Suggestion, VueDadata } from 'vue-dadata';
 import { isCityExist } from '@/utils';
 import 'vue-dadata/dist/style.css';
 
-type RightSuggestion = Suggestion & {
-  data: { country_iso_code: string };
-};
-
 export default defineComponent({
   setup() {
-    const query = ref('');
-    const suggestion = ref<RightSuggestion | undefined>(undefined);
     const store = useStore(key);
+    const language = computed(() => store.getters.getLanguage as Language);
+    const query = ref('');
+    const suggestion = ref<Suggestion | undefined>(undefined);
     const loading = ref(false);
 
     const handleSubmit = async (e: Event) => {
@@ -63,16 +62,19 @@ export default defineComponent({
       }
     };
 
+    const locationOptions = computed(() => ({
+      language: language.value,
+      locations: [{ country: '*', bounds: 'city' }]
+    }));
+
     return {
       handleSubmit,
       loading,
       suggestion,
       token: process.env.VUE_APP_API_KEY_DADATA,
       query,
-      locationOptions: {
-        language: 'en',
-        locations: [{ country: '*', bounds: 'city' }]
-      }
+      language,
+      locationOptions
     };
   },
   components: {

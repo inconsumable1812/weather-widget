@@ -75,6 +75,8 @@ export default defineComponent({
 
         if (itemObject.cityName !== undefined) {
           items.push(itemObject);
+        } else if (localKey === 'appLanguage') {
+          store.commit('setLanguage', itemObject);
         }
       }
     }

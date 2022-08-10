@@ -18,6 +18,7 @@ declare module '@vue/runtime-core' {
     currentLongitude: number | null;
     language: Language;
     error: Error | null;
+    isLoading: boolean;
   };
 
   type State = WeatherItemsState;

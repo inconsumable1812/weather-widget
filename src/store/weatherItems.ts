@@ -1,4 +1,4 @@
-import { WeatherItemsState, Item, State } from 'vue';
+import { WeatherItemsState, Item, State, Language } from 'vue';
 import { Module } from 'vuex';
 import { sortOrder } from '@/utils';
 import { fetchFromCityName } from '@/api/fromCityName';
@@ -13,7 +13,8 @@ const weatherItems: Module<WeatherItemsState, State> = {
     currentLatitude: null,
     currentLongitude: null,
     language: 'en',
-    error: null
+    error: null,
+    isLoading: false
   },
   getters: {
     getItems(state) {
@@ -27,6 +28,9 @@ const weatherItems: Module<WeatherItemsState, State> = {
     },
     getError(state) {
       return state.error;
+    },
+    getIsLoading(state) {
+      return state.isLoading;
     }
   },
   mutations: {
@@ -124,6 +128,11 @@ const weatherItems: Module<WeatherItemsState, State> = {
     },
     changeLanguage(state) {
       state.language = state.language === 'en' ? 'ru' : 'en';
+    },
+    setLanguage(state, language: Language) {
+      if (state.language === language) return;
+
+      state.language = language;
     }
   },
   actions: {

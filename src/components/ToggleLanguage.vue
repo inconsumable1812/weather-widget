@@ -15,20 +15,21 @@
 
 <script lang="ts">
 import { key } from '@/store';
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, Language, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 export default defineComponent({
   setup() {
     const store = useStore(key);
-    const isRussianLanguage = ref(false);
+    const language = store.getters.getLanguage as Language;
+    const isRussianLanguage = ref(language === 'ru');
 
     watch(isRussianLanguage, () => {
       store.commit('changeLanguage');
       store.dispatch('changeLanguageActions');
     });
 
-    return { isRussianLanguage };
+    return { isRussianLanguage, language };
   }
 });
 </script>

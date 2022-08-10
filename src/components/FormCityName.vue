@@ -38,7 +38,7 @@ export default defineComponent({
     const language = computed(() => store.getters.getLanguage as Language);
     const query = ref('');
     const suggestion = ref<Suggestion | undefined>(undefined);
-    const loading = ref(false);
+    const loading = computed(() => store.getters.getIsLoading as boolean);
 
     const handleSubmit = async (e: Event) => {
       e.preventDefault();
@@ -52,13 +52,9 @@ export default defineComponent({
           return;
         }
 
-        store.commit('changeCurrentCityName', newCity);
-        loading.value = true;
-        await store.dispatch('getWeatherFromName');
+        await store.dispatch('getWeatherFromName', newCity);
         query.value = '';
         suggestion.value = undefined;
-        loading.value = false;
-        store.commit('changeCurrentCityName', null);
       }
     };
 

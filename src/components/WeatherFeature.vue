@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Item, ref } from 'vue';
+import { computed, defineComponent, Item, ref } from 'vue';
 import WeatherList from './WeatherList.vue';
 import SettingsView from './SettingsView.vue';
 import GearIcon from './Icon/GearIcon.vue';
@@ -54,8 +54,8 @@ export default defineComponent({
     const view = ref<'weather' | 'settings'>('weather');
     const geolocationError = ref<null | Error | GeolocationPositionError>(null);
     const store = useStore(key);
-    const storeItems = store.getters.getItems as Item[];
-    const loading = ref(false);
+    const storeItems = computed(() => store.getters.getItems as Item[]);
+    const loading = computed(() => store.getters.getIsLoading as boolean);
     const error = store.getters.getError as Error | null;
 
     const handleChangeView = () => {
@@ -81,28 +81,25 @@ export default defineComponent({
       }
     }
 
-    items.sort(sortOrder).forEach(async (item) => {
-      const index = storeItems.findIndex(
-        (storeItem) => storeItem.id === item.id
-      );
-      const isExist = index !== -1;
-      if (isExist) return;
+    items.sort(sortOrder);
+    async function getFromStorage() {
+      for (const item of items) {
+        const index = storeItems.value.findIndex(
+          (storeItem) => storeItem.id === item.id
+        );
+        const isExist = index !== -1;
+        if (isExist) return;
 
-      store.commit('changeCurrentCityName', item.cityName);
-      loading.value = true;
-      await store.dispatch('getWeatherFromName');
-      loading.value = false;
-      store.commit('changeCurrentCityName', null);
-    });
+        await store.dispatch('getWeatherFromName', item.cityName);
+      }
+    }
+
+    getFromStorage();
 
     async function success(pos: GeolocationPosition) {
       const { latitude, longitude } = pos.coords;
 
-      store.commit('changeCoord', { latitude, longitude });
-      loading.value = true;
-      await store.dispatch('getWeatherFromCoord');
-      loading.value = false;
-      store.commit('changeCoord', { latitude: null, longitude: null });
+      await store.dispatch('getWeatherFromCoord', { latitude, longitude });
     }
 
     function errorCallback(error: GeolocationPositionError) {

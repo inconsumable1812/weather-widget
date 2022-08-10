@@ -9,9 +9,6 @@ const weatherItems: Module<WeatherItemsState, State> = {
   state: {
     items: [],
     currentItem: null,
-    currentCityName: null,
-    currentLatitude: null,
-    currentLongitude: null,
     language: 'en',
     error: null,
     isLoading: false
@@ -68,19 +65,6 @@ const weatherItems: Module<WeatherItemsState, State> = {
     changeCurrentItem(state, value: Item | null) {
       state.currentItem = value;
     },
-    changeCurrentCityName(state, newCityName: string | null) {
-      state.currentCityName = newCityName;
-    },
-    changeCoord(
-      state,
-      {
-        latitude,
-        longitude
-      }: { latitude: number | null; longitude: number | null }
-    ) {
-      state.currentLatitude = latitude;
-      state.currentLongitude = longitude;
-    },
     changeError(state, error: Error | null) {
       state.error = error;
     },
@@ -133,35 +117,35 @@ const weatherItems: Module<WeatherItemsState, State> = {
       if (state.language === language) return;
 
       state.language = language;
+    },
+    changeIsLoading(state, isLoading: boolean) {
+      state.isLoading = isLoading;
     }
   },
   actions: {
-    async getWeatherFromName({ commit, state }) {
-      if (state.currentCityName === null) return;
+    async getWeatherFromName({ commit, state }, cityName: string) {
+      commit('changeIsLoading', true);
 
       const data = await fetchFromCityName({
-        cityName: state.currentCityName,
+        cityName,
         language: state.language
       });
 
+      commit('changeIsLoading', false);
       if (data instanceof Error) {
         commit('changeError', data);
         return;
       }
-
       commit('addItem', data);
     },
-    async getWeatherFromCoord({ commit, state }) {
-      const { currentLatitude, currentLongitude } = state;
-      if (currentLatitude === null || currentLongitude === null) {
-        return;
-      }
-
+    async getWeatherFromCoord({ commit, state }, { latitude, longitude }) {
+      commit('changeIsLoading', true);
       const data = await fetchFromCoord({
-        latitude: currentLatitude,
-        longitude: currentLongitude,
+        latitude,
+        longitude,
         language: state.language
       });
+      commit('changeIsLoading', false);
 
       if (data instanceof Error) {
         commit('changeError', data);
@@ -177,11 +161,8 @@ const weatherItems: Module<WeatherItemsState, State> = {
 
       const allItems = [...state.items];
       commit('deleteItems');
-
       allItems.forEach(async (item) => {
-        commit('changeCurrentCityName', item.value.name);
-        await dispatch('getWeatherFromName');
-        commit('changeCurrentCityName', null);
+        await dispatch('getWeatherFromName', item.value.name);
       });
 
       localStorage.setItem('appLanguage', JSON.stringify(state.language));

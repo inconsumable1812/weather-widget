@@ -13,9 +13,6 @@ declare module '@vue/runtime-core' {
   type WeatherItemsState = {
     items: Item[];
     currentItem: null | Item;
-    currentCityName: null | string;
-    currentLatitude: number | null;
-    currentLongitude: number | null;
     language: Language;
     error: Error | null;
     isLoading: boolean;

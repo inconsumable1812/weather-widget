@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Language, onMounted, Item, PropType } from 'vue';
+import { defineComponent, Language, Item, PropType } from 'vue';
 import WindIcon from './Icon/WindIcon.vue';
 import PressureIcon from './Icon/PressureIcon.vue';
 import { findWeatherIconURL, kelvinToCelsius, computedSunTime } from '@/utils';
@@ -66,10 +66,6 @@ export default defineComponent({
   setup(props) {
     const store = useStore(key);
     const language = store.getters.getLanguage as Language;
-
-    onMounted(() => {
-      console.log('munted');
-    });
 
     const weatherURL = findWeatherIconURL(props.item.value.weather[0].icon);
     const temperature = kelvinToCelsius(props.item.value.main.temp);

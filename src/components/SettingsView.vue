@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" ref="container">
     <SettingsItem
       class="item"
       :id="item.id"
@@ -7,6 +7,7 @@
       :country="item.value.sys.country"
       v-for="item in items"
       :key="item.id"
+      :container="container"
     >
     </SettingsItem>
   </div>
@@ -15,7 +16,7 @@
 
 <script lang="ts">
 import { key } from '@/store';
-import { defineComponent, Item } from 'vue';
+import { defineComponent, Item, ref } from 'vue';
 import { useStore } from 'vuex';
 import FormCityName from './FormCityName.vue';
 import SettingsItem from './SettingsItem.vue';
@@ -24,8 +25,9 @@ export default defineComponent({
   setup() {
     const store = useStore(key);
     const items = store.getters.getItems as Item[];
+    const container = ref<null | HTMLDivElement>(null);
 
-    return { items };
+    return { items, container };
   },
   components: {
     FormCityName,

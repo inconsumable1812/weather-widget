@@ -161,9 +161,13 @@ const weatherItems: Module<WeatherItemsState, State> = {
 
       const allItems = [...state.items];
       commit('deleteItems');
-      allItems.forEach(async (item) => {
-        await dispatch('getWeatherFromName', item.value.name);
-      });
+
+      async function createNewItems() {
+        for (const item of allItems) {
+          await dispatch('getWeatherFromName', item.value.name);
+        }
+      }
+      createNewItems();
 
       localStorage.setItem('appLanguage', JSON.stringify(state.language));
     }

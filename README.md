@@ -6,30 +6,14 @@ visualization of openWeather [api](https://openweathermap.org/api)
 
 ## Using the plugin
 
-You can add this widget to their websites as simple as inserting the snippet into an HTML-page: `<script defer="defer" url="{URL to the script}"></script>` and optionally `<link href="{css file}" rel="stylesheet" />`
+You can add this widget to their websites as simple as inserting the snippet into an HTML-page into tag **header**: `<script defer="defer" url="{URL to the script}"></script>` and optionally `<link href="{css file}" rel="stylesheet" />`
 
 ### How to get files
 
-#### first option
-
 - download `js` file from [url](https://github.com/inconsumable1812/weather-widget/tree/gh-pages/js)
 - download `css` file from [url](https://github.com/inconsumable1812/weather-widget/tree/gh-pages/css)
-
-And add this files to your HTML
-
-#### second option
-
-- clone this repository
-
-```
-git clone https://github.com/inconsumable1812/weather-widget.git
-cd weather-widget
-npm i
-```
-
-- run `npm run build`.
-- `dist` folder will contain `js` and `css` files.
 - add this files to your HTML
+- add `<div id="app"></div>` into tag **body** in HTML
 
 ## Project setup
 

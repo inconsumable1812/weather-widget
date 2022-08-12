@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Item } from 'vue';
+import { defineComponent } from 'vue';
 import TrashIcon from './Icon/TrashIcon.vue';
 import BurgerIcon from './Icon/BurgerIcon.vue';
 import { key } from '@/store';
@@ -20,12 +20,7 @@ import { useStore } from 'vuex';
 export default defineComponent({
   setup(props) {
     const store = useStore(key);
-    const items = store.getters.getItems as Item[];
-    const currentItem = items.find((item) => item.id === props.id);
-
     const removeItem = () => {
-      if (currentItem === undefined) return;
-
       store.commit('deleteItem', props.id);
     };
 

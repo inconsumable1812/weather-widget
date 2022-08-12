@@ -12,7 +12,6 @@ declare module '@vue/runtime-core' {
 
   type WeatherItemsState = {
     items: Item[];
-    currentItem: null | Item;
     language: Language;
     error: Error | null;
     isLoading: boolean;

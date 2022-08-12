@@ -1,16 +1,7 @@
 <template>
   <div class="item" ref="itemDOM">
     <div class="item__title">
-      <div
-        draggable="true"
-        :ondragstart="handlerDragStart"
-        :ondragleave="handlerDragLeave"
-        :ondragend="handlerDragEnd"
-        :ondragover="handlerDragOver"
-        :ondrop="handlerDrop"
-        v-on:touchmove="handlerTouchMove"
-        class="burger item__icon"
-      >
+      <div class="burger handle item__icon">
         <BurgerIcon />
       </div>
       <p class="item__name">{{ name }}, {{ country }}</p>
@@ -20,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Item, PropType, ref } from 'vue';
+import { defineComponent, Item, ref } from 'vue';
 import TrashIcon from './Icon/TrashIcon.vue';
 import BurgerIcon from './Icon/BurgerIcon.vue';
 import { key } from '@/store';
@@ -32,6 +23,13 @@ export default defineComponent({
     const items = store.getters.getItems as Item[];
     const currentItem = items.find((item) => item.id === props.id);
     const itemDOM = ref<null | HTMLDivElement>(null);
+
+    //  draggable="true"
+    // :ondragstart="handlerDragStart"
+    // :ondragleave="handlerDragLeave"
+    // :ondragend="handlerDragEnd"
+    // :ondragover="handlerDragOver"
+    // :ondrop="handlerDrop"
 
     const removeItem = () => {
       if (currentItem === undefined) return;
@@ -72,22 +70,6 @@ export default defineComponent({
       itemDOM.value.style.background = '#eee';
     };
 
-    const handlerTouchMove = (e: TouchEvent) => {
-      if (itemDOM.value === null) return;
-      if (currentItem === undefined) return;
-      console.log(itemDOM.value.getBoundingClientRect(), 'item');
-
-      console.log(props.container.getBoundingClientRect(), 'container');
-      const y =
-        props.container.getBoundingClientRect().y +
-        itemDOM.value.getBoundingClientRect().height * currentItem.order -
-        e.touches[0].clientY;
-
-      itemDOM.value.style.top = -y + 'px';
-
-      // itemDOM.value.style.background = '#eee';
-    };
-
     return {
       removeItem,
       handlerDragStart,
@@ -95,7 +77,6 @@ export default defineComponent({
       handlerDragOver,
       handlerDragEnd,
       handlerDrop,
-      handlerTouchMove,
       itemDOM
     };
   },
@@ -106,11 +87,7 @@ export default defineComponent({
   props: {
     name: { type: String, required: true },
     country: { type: String, required: true },
-    id: { type: Number, required: true },
-    container: {
-      type: Object as PropType<HTMLDivElement> | null,
-      required: true
-    }
+    id: { type: Number, required: true }
   }
 });
 </script>

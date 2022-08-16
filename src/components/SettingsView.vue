@@ -1,7 +1,6 @@
 <template>
   <div class="container" ref="containerDOM">
     <SettingsItem
-      class="item"
       :id="element.id"
       :name="element.value.name"
       :country="element.value.sys.country"
@@ -47,10 +46,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.item {
-  margin: 0 auto;
-}
-
 .container {
   margin: 5px 0 12px;
   position: relative;

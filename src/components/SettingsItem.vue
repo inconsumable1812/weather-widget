@@ -5,7 +5,7 @@
     v-on:touchmove="touchMoveHandler"
     v-on:touchend="touchUpHandler"
     v-on:touchcancel="touchUpHandler"
-    v-on:drag.prevent="callbackMove"
+    v-on:drag.prevent="dragHandler"
     v-on:dragend="dragEndHandler"
     class="item"
   >
@@ -20,16 +20,17 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable */
 import { computed, defineComponent, Item, PropType, ref } from 'vue';
 import TrashIcon from './Icon/TrashIcon.vue';
 import BurgerIcon from './Icon/BurgerIcon.vue';
 import { key } from '@/store';
 import { useStore } from 'vuex';
+import { arrayMove, computedContainerSize, findIndex } from '@/utils';
 
 export default defineComponent({
   setup(props) {
     const store = useStore(key);
+    const rootDOM = ref<null | HTMLDivElement>(null);
     const removeItem = () => {
       store.commit('deleteItem', props.id);
     };
@@ -37,10 +38,6 @@ export default defineComponent({
     const items = computed(() => {
       return store.getters.getItems as Item[];
     });
-
-    const rootDOM = ref<null | HTMLDivElement>(null);
-    const mediaQuery = window.matchMedia('(pointer: fine)');
-    const isDesktop = mediaQuery.matches;
 
     const mouseDownHandler = () => {
       if (rootDOM.value === null) return;
@@ -52,50 +49,21 @@ export default defineComponent({
       rootDOM.value.draggable = false;
     };
 
-    const findIndex = ({
-      itemsHeightPoint,
-      itemPointerY,
-      topBorder,
-      bottomBorder
-    }: {
-      itemsHeightPoint: number[];
-      itemPointerY: number;
-      topBorder: number;
-      bottomBorder: number;
-    }) => {
-      if (itemPointerY <= topBorder) return 0;
-      if (itemPointerY >= bottomBorder) return itemsHeightPoint.length - 1;
+    let prevIndexMove = -1;
 
-      let index = -1;
-      for (const heightPoint of itemsHeightPoint) {
-        if (heightPoint >= itemPointerY) {
-          break;
-        }
-        index += 1;
-      }
+    const dragHandler = (event: MouseEvent) => {
+      if (props.containerDOM === null) return;
+      if (rootDOM.value === null) return;
 
-      return index;
-    };
-
-    function arrayMove(arr: any[], fromIndex: number, toIndex: number) {
-      const element = arr[fromIndex];
-      arr.splice(fromIndex, 1);
-      arr.splice(toIndex, 0, element);
-    }
-
-    let prevIndexCallbackMove = -1;
-
-    const callbackMove = (e: Event) => {
-      const containerHeight = props.containerDOM.getBoundingClientRect().height;
-      const containerTop = props.containerDOM.getBoundingClientRect().top;
-      const containerBottom = props.containerDOM.getBoundingClientRect().bottom;
-      const itemHeight = containerHeight / items.value.length;
-      const itemsHeightPoint = new Array(items.value.length)
-        .fill('')
-        .map((_, i) => containerTop + i * itemHeight);
-      const itemPointerY = (e as PointerEvent).clientY;
-
-      if (itemPointerY === 0) return;
+      const itemHeight = rootDOM.value.clientHeight;
+      const { itemsHeightPoint, itemPointerY, containerTop, containerBottom } =
+        computedContainerSize({
+          containerDOM: props.containerDOM,
+          items: items.value,
+          event,
+          itemHeight
+        });
+      if (itemPointerY === 0 || itemPointerY === undefined) return;
 
       const index = findIndex({
         itemsHeightPoint,
@@ -103,32 +71,22 @@ export default defineComponent({
         topBorder: containerTop,
         bottomBorder: containerBottom
       });
-
-      if (prevIndexCallbackMove === index) return;
-
-      prevIndexCallbackMove = index;
+      if (prevIndexMove === index) return;
+      prevIndexMove = index;
 
       const newArray = [...items.value];
       arrayMove(newArray, props.itemIndex, index);
-
-      console.log(index, 'index');
-
-      console.log(
-        newArray.map((item) => item.value.name),
-        'newArray'
-      );
 
       store.commit('changeOrder', newArray);
     };
 
     let dragElement: HTMLDivElement | null = null;
 
-    const touchDownHandler = (e: TouchEvent) => {
+    const touchDownHandler = () => {
       if (props.containerDOM === null) return;
       if (rootDOM.value === null) return;
 
-      const containerHeight = props.containerDOM.getBoundingClientRect().height;
-      const itemHeight = containerHeight / items.value.length;
+      const itemHeight = rootDOM.value.clientHeight;
 
       dragElement = rootDOM.value.cloneNode(true) as HTMLDivElement;
       dragElement.classList.add('drag-element');
@@ -142,35 +100,34 @@ export default defineComponent({
       props.containerDOM.append(dragElement);
     };
 
-    const touchMoveHandler = (e: TouchEvent) => {
+    const touchMoveHandler = (event: TouchEvent) => {
       if (dragElement === null) return;
       if (rootDOM.value === null) return;
       if (props.containerDOM === null) return;
 
-      const containerHeight = props.containerDOM.getBoundingClientRect().height;
-      const itemHeight = containerHeight / items.value.length;
-
+      const itemHeight = rootDOM.value.clientHeight;
       const centerY =
         rootDOM.value.getBoundingClientRect().top + itemHeight / 2;
       const offsetX = rootDOM.value.getBoundingClientRect().left + 22;
-      const clientY = e.touches[0].clientY;
-      const clientX = e.touches[0].clientX;
-      const deltaY = clientY - centerY;
-      const deltaX = clientX - offsetX;
+      const clientY = event.touches[0].clientY;
+      const clientX = event.touches[0].clientX;
+
+      const { itemsHeightPoint, containerTop, containerBottom } =
+        computedContainerSize({
+          containerDOM: props.containerDOM,
+          items: items.value,
+          event,
+          itemHeight
+        });
 
       dragElement.style.top = itemHeight * props.itemIndex + 'px';
       dragElement.style.left =
         props.containerDOM.clientWidth / 2 -
         rootDOM.value.clientWidth / 2 +
         'px';
-
-      dragElement.style.transform = `matrix(1, 0, 0, 1, ${deltaX}, ${deltaY})`;
-
-      const containerTop = props.containerDOM.getBoundingClientRect().top;
-      const containerBottom = props.containerDOM.getBoundingClientRect().bottom;
-      const itemsHeightPoint = new Array(items.value.length)
-        .fill('')
-        .map((_, i) => containerTop + i * itemHeight);
+      dragElement.style.transform = `matrix(1, 0, 0, 1, ${clientX - offsetX}, ${
+        clientY - centerY
+      })`;
 
       if (clientY === 0) return;
 
@@ -181,9 +138,8 @@ export default defineComponent({
         bottomBorder: containerBottom
       });
 
-      if (prevIndexCallbackMove === index) return;
-
-      prevIndexCallbackMove = index;
+      if (prevIndexMove === index) return;
+      prevIndexMove = index;
 
       const newArray = [...items.value];
       arrayMove(newArray, props.itemIndex, index);
@@ -191,32 +147,14 @@ export default defineComponent({
       store.commit('changeOrder', newArray);
     };
 
-    const touchUpHandler = (e: TouchEvent) => {
+    const touchUpHandler = () => {
       if (dragElement === null) return;
       dragElement.remove();
     };
 
-    const callbackUp = (e: Event) => {
-      if (e.currentTarget === null) return;
-
-      e.currentTarget.removeEventListener('pointermove', callbackMove);
-      e.currentTarget.removeEventListener('pointerup', callbackUp);
-    };
-
-    const handlerPointerDown = (e: PointerEvent) => {
-      if (props.containerDOM === null) return;
-      if (e.currentTarget === null) return;
-      if (items.value.length <= 1) return;
-
-      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
-      e.currentTarget.addEventListener('pointermove', callbackMove);
-      e.currentTarget.addEventListener('pointerup', callbackUp);
-    };
-
     return {
       removeItem,
-      handlerPointerDown,
-      callbackMove,
+      dragHandler,
       touchDownHandler,
       touchUpHandler,
       rootDOM,
@@ -242,6 +180,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .item {
   display: flex;
+  margin: 0 auto;
   justify-content: space-between;
   align-items: center;
   background: #eee;

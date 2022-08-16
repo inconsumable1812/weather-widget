@@ -3,6 +3,7 @@
     ref="rootDOM"
     v-on:touchstart="touchDownHandler"
     v-on:touchend="touchUpHandler"
+    v-on:touchcancel="touchUpHandler"
     v-on:drag.prevent="callbackMove"
     v-on:dragend="dragEndHandler"
     class="item"
@@ -42,13 +43,11 @@ export default defineComponent({
 
     const mouseDownHandler = () => {
       if (rootDOM.value === null) return;
-
       rootDOM.value.draggable = true;
     };
 
     const dragEndHandler = () => {
       if (rootDOM.value === null) return;
-
       rootDOM.value.draggable = false;
     };
 
@@ -121,14 +120,19 @@ export default defineComponent({
       store.commit('changeOrder', newArray);
     };
 
-    const dragElement = document.createElement('div');
-    dragElement.classList.add('drag-element');
+    let dragElement: HTMLDivElement | null = null;
 
     const touchDownHandler = (e: TouchEvent) => {
+      if (props.containerDOM === null) return;
+      if (rootDOM.value === null) return;
+
+      dragElement = rootDOM.value.cloneNode(true) as HTMLDivElement;
+      dragElement.classList.add('drag-element');
       props.containerDOM.append(dragElement);
     };
 
     const touchUpHandler = (e: TouchEvent) => {
+      if (dragElement === null) return;
       dragElement.remove();
     };
 

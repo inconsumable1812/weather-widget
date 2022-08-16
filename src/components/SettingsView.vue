@@ -53,5 +53,6 @@ export default defineComponent({
 
 .container {
   margin: 5px 0 12px;
+  position: relative;
 }
 </style>

@@ -2,6 +2,7 @@
   <div
     ref="rootDOM"
     v-on:touchstart="touchDownHandler"
+    v-on:touchmove="touchMoveHandler"
     v-on:touchend="touchUpHandler"
     v-on:touchcancel="touchUpHandler"
     v-on:drag.prevent="callbackMove"
@@ -126,9 +127,68 @@ export default defineComponent({
       if (props.containerDOM === null) return;
       if (rootDOM.value === null) return;
 
+      const containerHeight = props.containerDOM.getBoundingClientRect().height;
+      const itemHeight = containerHeight / items.value.length;
+
       dragElement = rootDOM.value.cloneNode(true) as HTMLDivElement;
       dragElement.classList.add('drag-element');
+      dragElement.style.width = rootDOM.value.clientWidth + 'px';
+      dragElement.style.top = itemHeight * props.itemIndex + 'px';
+      dragElement.style.left =
+        props.containerDOM.clientWidth / 2 -
+        rootDOM.value.clientWidth / 2 +
+        'px';
+
       props.containerDOM.append(dragElement);
+    };
+
+    const touchMoveHandler = (e: TouchEvent) => {
+      if (dragElement === null) return;
+      if (rootDOM.value === null) return;
+      if (props.containerDOM === null) return;
+
+      const containerHeight = props.containerDOM.getBoundingClientRect().height;
+      const itemHeight = containerHeight / items.value.length;
+
+      const centerY =
+        rootDOM.value.getBoundingClientRect().top + itemHeight / 2;
+      const offsetX = rootDOM.value.getBoundingClientRect().left + 22;
+      const clientY = e.touches[0].clientY;
+      const clientX = e.touches[0].clientX;
+      const deltaY = clientY - centerY;
+      const deltaX = clientX - offsetX;
+
+      dragElement.style.top = itemHeight * props.itemIndex + 'px';
+      dragElement.style.left =
+        props.containerDOM.clientWidth / 2 -
+        rootDOM.value.clientWidth / 2 +
+        'px';
+
+      dragElement.style.transform = `matrix(1, 0, 0, 1, ${deltaX}, ${deltaY})`;
+
+      const containerTop = props.containerDOM.getBoundingClientRect().top;
+      const containerBottom = props.containerDOM.getBoundingClientRect().bottom;
+      const itemsHeightPoint = new Array(items.value.length)
+        .fill('')
+        .map((_, i) => containerTop + i * itemHeight);
+
+      if (clientY === 0) return;
+
+      const index = findIndex({
+        itemsHeightPoint,
+        itemPointerY: clientY,
+        topBorder: containerTop,
+        bottomBorder: containerBottom
+      });
+
+      if (prevIndexCallbackMove === index) return;
+
+      prevIndexCallbackMove = index;
+
+      const newArray = [...items.value];
+      arrayMove(newArray, props.itemIndex, index);
+
+      store.commit('changeOrder', newArray);
     };
 
     const touchUpHandler = (e: TouchEvent) => {
@@ -161,7 +221,8 @@ export default defineComponent({
       touchUpHandler,
       rootDOM,
       mouseDownHandler,
-      dragEndHandler
+      dragEndHandler,
+      touchMoveHandler
     };
   },
   components: {
@@ -205,6 +266,12 @@ export default defineComponent({
     overflow: hidden;
     white-space: nowrap;
   }
+}
+
+.drag-element {
+  position: absolute;
+  opacity: 0.8;
+  z-index: 5;
 }
 
 .burger {

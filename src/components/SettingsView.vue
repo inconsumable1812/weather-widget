@@ -1,25 +1,23 @@
 <template>
-  <div class="container">
-    <Draggable v-model="items" handle=".handle" group="items" item-key="order">
-      <template #item="{ element }">
-        <SettingsItem
-          class="item"
-          :id="element.id"
-          :name="element.value.name"
-          :country="element.value.sys.country"
-          :key="element.id"
-        >
-        </SettingsItem>
-      </template>
-    </Draggable>
+  <div class="container" ref="containerDOM">
+    <SettingsItem
+      class="item"
+      :id="element.id"
+      :name="element.value.name"
+      :country="element.value.sys.country"
+      :key="element.id"
+      :itemIndex="index"
+      :containerDOM="containerDOM"
+      v-for="(element, index) in items"
+    >
+    </SettingsItem>
   </div>
   <FormCityName />
 </template>
 
 <script lang="ts">
 import { key } from '@/store';
-import { defineComponent, Item, computed } from 'vue';
-import Draggable from 'vuedraggable';
+import { defineComponent, Item, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import FormCityName from './FormCityName.vue';
 import SettingsItem from './SettingsItem.vue';
@@ -27,6 +25,7 @@ import SettingsItem from './SettingsItem.vue';
 export default defineComponent({
   setup() {
     const store = useStore(key);
+
     const items = computed({
       get() {
         return store.getters.getItems as Item[];
@@ -36,12 +35,13 @@ export default defineComponent({
       }
     });
 
-    return { items };
+    const containerDOM = ref<null | HTMLDivElement>(null);
+
+    return { items, containerDOM };
   },
   components: {
     FormCityName,
-    SettingsItem,
-    Draggable
+    SettingsItem
   }
 });
 </script>

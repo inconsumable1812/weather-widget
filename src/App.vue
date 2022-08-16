@@ -19,6 +19,7 @@ export default defineComponent({
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  touch-action: none;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

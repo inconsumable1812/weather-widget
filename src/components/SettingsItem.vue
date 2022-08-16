@@ -1,12 +1,14 @@
 <template>
   <div
-    draggable="true"
-    v-on:drag.prevent=""
-    v-on:dragstart.prevent=""
+    ref="rootDOM"
+    v-on:touchstart="touchDownHandler"
+    v-on:touchend="touchUpHandler"
+    v-on:drag.prevent="callbackMove"
+    v-on:dragend="dragEndHandler"
     class="item"
   >
     <div class="item__title">
-      <div class="burger handle item__icon" :onpointerdown="handlerPointerDown">
+      <div class="burger handle item__icon" v-on:mousedown="mouseDownHandler">
         <BurgerIcon />
       </div>
       <p class="item__name">{{ name }}, {{ country }}</p>
@@ -17,7 +19,7 @@
 
 <script lang="ts">
 /* eslint-disable */
-import { computed, defineComponent, Item, PropType } from 'vue';
+import { computed, defineComponent, Item, PropType, ref } from 'vue';
 import TrashIcon from './Icon/TrashIcon.vue';
 import BurgerIcon from './Icon/BurgerIcon.vue';
 import { key } from '@/store';
@@ -33,6 +35,22 @@ export default defineComponent({
     const items = computed(() => {
       return store.getters.getItems as Item[];
     });
+
+    const rootDOM = ref<null | HTMLDivElement>(null);
+    const mediaQuery = window.matchMedia('(pointer: fine)');
+    const isDesktop = mediaQuery.matches;
+
+    const mouseDownHandler = () => {
+      if (rootDOM.value === null) return;
+
+      rootDOM.value.draggable = true;
+    };
+
+    const dragEndHandler = () => {
+      if (rootDOM.value === null) return;
+
+      rootDOM.value.draggable = false;
+    };
 
     const findIndex = ({
       itemsHeightPoint,
@@ -77,6 +95,8 @@ export default defineComponent({
         .map((_, i) => containerTop + i * itemHeight);
       const itemPointerY = (e as PointerEvent).clientY;
 
+      if (itemPointerY === 0) return;
+
       const index = findIndex({
         itemsHeightPoint,
         itemPointerY,
@@ -92,12 +112,24 @@ export default defineComponent({
       arrayMove(newArray, props.itemIndex, index);
 
       console.log(index, 'index');
+
       console.log(
         newArray.map((item) => item.value.name),
         'newArray'
       );
 
       store.commit('changeOrder', newArray);
+    };
+
+    const dragElement = document.createElement('div');
+    dragElement.classList.add('drag-element');
+
+    const touchDownHandler = (e: TouchEvent) => {
+      props.containerDOM.append(dragElement);
+    };
+
+    const touchUpHandler = (e: TouchEvent) => {
+      dragElement.remove();
     };
 
     const callbackUp = (e: Event) => {
@@ -119,7 +151,13 @@ export default defineComponent({
 
     return {
       removeItem,
-      handlerPointerDown
+      handlerPointerDown,
+      callbackMove,
+      touchDownHandler,
+      touchUpHandler,
+      rootDOM,
+      mouseDownHandler,
+      dragEndHandler
     };
   },
   components: {

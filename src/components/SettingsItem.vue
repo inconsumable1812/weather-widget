@@ -1,16 +1,19 @@
 <template>
   <div
     ref="rootDOM"
-    v-on:touchstart="touchDownHandler"
-    v-on:touchmove="touchMoveHandler"
-    v-on:touchend="touchUpHandler"
-    v-on:touchcancel="touchUpHandler"
     v-on:drag.prevent="dragHandler"
     v-on:dragend="dragEndHandler"
     class="item"
   >
     <div class="item__title">
-      <div class="burger handle item__icon" v-on:mousedown="mouseDownHandler">
+      <div
+        class="burger handle item__icon"
+        v-on:mousedown="mouseDownHandler"
+        v-on:touchstart="touchDownHandler"
+        v-on:touchmove="touchMoveHandler"
+        v-on:touchend="touchUpHandler"
+        v-on:touchcancel="touchUpHandler"
+      >
         <BurgerIcon />
       </div>
       <p class="item__name">{{ name }}, {{ country }}</p>
